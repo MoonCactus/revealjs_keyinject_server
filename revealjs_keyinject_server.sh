@@ -32,20 +32,22 @@ HTTP/1.1 200 OK
 EOF
 )
 
-echo "Reveal.js controlling web server is listening on $port..."
+echo "Reveal.js controlling web server is listening on: http://$contact"
 while true; do
 
+	# No -q on netcat? Prefix it with "timeout 0.5"
 	action=$(
 		echo "$html" |
-			timeout 0.5 netcat -l "$port" |
+			netcat -q 0 -l "$port" |
 				sed -n 's|GET /?\([A-Za-z0-1]*\).*|\1|p'
 	)
-		
+
+	echo "Received action $action"
 	if [ "$action" = 'BCK' ]; then
-		echo "$action on $(date)"
+		echo "  back on $(date)"
 		xdotool key Page_Up
 	elif [ "$action" = 'FWD' ]; then
-		echo "$action on $(date)"
+		echo "  forward on $(date)"
 		xdotool key Page_Down
 	fi
 done
